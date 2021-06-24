@@ -20,19 +20,27 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+var tip = msg => _chalk.default.blue(msg);
+
+var customTemplateSelect = [{
+  type: 'checkbox',
+  name: 'inputType',
+  message: tip('请选择模板'),
+  choices: _constants.TEMPLATE_CHOICES,
+  validate: answer => {
+    if (answer.length === 1) {
+      return true;
+    } else {
+      return warning('只能选择一种输入方式');
+    }
+  }
+}];
+
+var SelectTemplateFn = () => _inquirer.default.prompt(customTemplateSelect);
+
 var init = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (templateName, projectName) {
-    console.log('templateName', templateName);
-    console.log('projectName', projectName);
-
-    if (!_constants.ALLOW_TEMPLATES.includes(templateName)) {
-      var str = _constants.ALLOW_TEMPLATES.join(',');
-
-      console.log(_chalk.default.red(_chalk.default.bold('Error:')), _chalk.default.red("init\u53C2\u6570\u4E0D\u4E3A\u7A7A\u65F6\u5E94\u53D6\u503C ".concat(str, "\u4E4B\u4E00")));
-      return;
-    } //项目不存在
-
-
+    // 项目不存在
     if (!_fs.default.existsSync(projectName)) {
       //命令行交互
       _inquirer.default.prompt([{
@@ -46,8 +54,15 @@ var init = /*#__PURE__*/function () {
         message: 'Please enter the project description'
       }]).then( /*#__PURE__*/function () {
         var _ref2 = _asyncToGenerator(function* (answer) {
-          //下载模板 选择模板
+          if (!_constants.ALLOW_TEMPLATES.includes(templateName)) {
+            var {
+              inputType
+            } = yield SelectTemplateFn();
+            templateName = inputType;
+          } //下载模板 选择模板
           //通过配置文件，获取模板信息
+
+
           var loading = (0, _ora.default)('downloading template ...');
           loading.start();
           (0, _get.downloadLocal)(templateName, projectName).then(() => {
