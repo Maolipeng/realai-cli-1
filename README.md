@@ -1,10 +1,10 @@
-# @realai/realai-cli
+# realai-cli
 
 A template cli
 
 ### 安装
 
-`npm install -g @realai/realai-cli`
+`npm install -g realai-cli`
 ### 操作
 ```
 Options:
